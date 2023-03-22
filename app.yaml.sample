@@ -1,0 +1,17 @@
+runtime: nodejs16
+
+instance_class: F2
+
+env_variables:
+  LINKEDIN_CLIENT_ID: 
+  LINKEDIN_CLIENT_SECRET: 
+  LINKEDIN_CALLBACK_URL: "https://web3dev-spreader.uc.r.appspot.com/auth/linkedin/callback"
+  SESSION_SECRET: ""
+  DB_USER: ''
+  DB_PASSWORD: ''
+  DB_PORT: 3306
+  DB_NAME: 
+  DB_SOCKET_PATH: "/cloudsql/project:region:db"
+
+beta_settings:
+  cloud_sql_instances: project:region:db

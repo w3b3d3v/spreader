@@ -16,7 +16,6 @@ app.use(
   })
 )
 
-
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -25,7 +24,7 @@ passport.use(
     {
       clientID: process.env.LINKEDIN_CLIENT_ID,
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-      callbackURL: "http://127.0.0.1:3000/auth/linkedin/callback",
+      callbackURL: process.env.LINKEDIN_CALLBACK_URL,
       scope: ["r_emailaddress", "r_liteprofile", "w_member_social"],
     },
     async function (accessToken, refreshToken, profile, done) {
@@ -87,7 +86,7 @@ app.get("/profile", (req, res) => {
   res.render("profile", { user: req.user })
 })
 
-app.listen(3000, () => {
-  console.log("App is running on port 3000")
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
 })
-
