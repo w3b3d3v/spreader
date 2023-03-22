@@ -38,4 +38,5 @@ async function saveUserToken(user) {
 
 module.exports = {
   saveUserToken,
+  pool,
 }

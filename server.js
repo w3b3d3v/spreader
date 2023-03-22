@@ -1,10 +1,12 @@
 require("dotenv").config()
-const { saveUserToken } = require("./db")
+const { saveUserToken, pool } = require("./db")
 
 const express = require("express")
 const passport = require("passport")
 const session = require("express-session")
 const LinkedInStrategy = require("passport-linkedin-oauth2").Strategy
+const axios = require("axios")
+const bodyParser = require("body-parser")
 
 const app = express()
 app.set("view engine", "ejs")
@@ -15,6 +17,7 @@ app.use(
     saveUninitialized: false,
   })
 )
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -85,6 +88,50 @@ app.get(
 app.get("/profile", (req, res) => {
   res.render("profile", { user: req.user })
 })
+
+app.get("/post", (req, res) => {
+  res.render("post")
+})
+
+// Handle form submission
+app.post("/submit", async (req, res) => {
+  // Read the submitted message
+  const message = req.body.message
+
+  try {
+    // Fetch all authorized users from the database
+    const [rows] = await pool.query("SELECT * FROM linkedin_users")
+
+    // Post the message on LinkedIn for each authorized user
+    for (const user of rows) {
+      console.log(user)
+      await axios.post(
+        "https://api.linkedin.com/v2/shares",
+        {
+          owner: `urn:li:person:${user.id}`,
+          text: {
+            text: message,
+          },
+          content: {
+            shareMediaCategory: "NONE",
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+    }
+
+    res.send("Posted the message on LinkedIn for all authorized users.")
+  } catch (error) {
+    console.error(error)
+    res.status(500).send("An error occurred while posting the message.")
+  }
+})
+
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
